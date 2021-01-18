@@ -10,6 +10,6 @@ Create a python3 virtual environement
 `python3 -m venv venv --prompt="ctf-scheduler"`
 
 Install project dependencies 
-`pip install -e .`
+`pip install -r requirements.txt`
 
 # Contibution
