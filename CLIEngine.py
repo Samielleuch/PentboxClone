@@ -93,7 +93,6 @@ def main():
             if(answer['choice'] == 'chiffre'):
                 encrypt(algorithme['choice'], answer['str'])
             else:
-                algorithme = prompt(algorithmesCodage)
                 decrypt(algorithme['choice'], answer['str'])
 # Chiffrement et déchiffrement asymétrique
         if(answers['option'][0] == '5'):
@@ -103,7 +102,6 @@ def main():
             if(answer['choice'] == 'chiffre'):
                 encrypt(algorithme['choice'], answer['str'])
             else:
-                algorithme = prompt(algorithmesCodage)
                 decrypt(algorithme['choice'], answer['str'])
 # Exit
         if(answers['option'][0] == '6'):
