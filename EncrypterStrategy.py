@@ -31,6 +31,20 @@ class EncrypterStrategy(ABC):
         """
         pass
 
+    @abstractmethod
+    def sign(self, string):
+        """
+        Signing
+        """
+        pass
+
+    @abstractmethod
+    def verify(self, string):
+        """
+        verify signature
+        """
+        pass
+
 
 class AESStrategy(EncrypterStrategy):
     def encrypt(self, str):
@@ -46,7 +60,7 @@ class AESStrategy(EncrypterStrategy):
         key = derived[IV_SIZE:]
         encrypted = salt + \
             AES.new(key, AES.MODE_CFB, iv).encrypt(str.encode('ascii'))
-        #we now encode it to base64
+        # we now encode it to base64
         base64_encrypted = base64.b64encode(encrypted).decode('ascii')
 
         logger.info(f"\nEncrypted value: {base64_encrypted}")
@@ -57,7 +71,7 @@ class AESStrategy(EncrypterStrategy):
         SALT_SIZE = 16  # This size is arbitrary
         password = b'this is my highly secure encryption password'
         logger.info(f"Decryption AES: {str}")
-        message_bytes =  base64.b64decode(str)
+        message_bytes = base64.b64decode(str)
         salt = message_bytes[0:SALT_SIZE]
         derived = hashlib.pbkdf2_hmac('sha256', password, salt, 100000,
                                       dklen=IV_SIZE + KEY_SIZE)
@@ -67,60 +81,80 @@ class AESStrategy(EncrypterStrategy):
             message_bytes[SALT_SIZE:])
         logger.info(f"\n original value: {cleartext}")
 
+    def verify(self, str):
+        logger.info(f"Verifying MAC: {str}")
 
-
-
-
+    def sign(self, str):
+        logger.info(f"MAC Signing: {str}")
 
 
 class RSAStrategy(EncrypterStrategy):
     def __init__(self):
-        #creation d´un couple de clés
-        self.key=RSA.generate(1024)
+        # creation d´un couple de clés
+        self.key = RSA.generate(1024)
 
     def encrypt(self, str):
         logger.info(f"Encryption RSA: {str}")
-        #afficher ses clés:
+        # afficher ses clés:
         k = self.key.exportKey('PEM')
         p = self.key.publickey().exportKey('PEM')
         logger.info(f"\n private key : \n {k}")
         logger.info(f"\n public key : \n {p}")
-        #sauvegarder ses clés dans des fichiers:
-        with open('private.pem','w') as kf:
+        # sauvegarder ses clés dans des fichiers:
+        with open('private.pem', 'w') as kf:
             kf.write(k.decode())
             kf.close()
-            
-        with open('public.pem','w') as pf:
+
+        with open('public.pem', 'w') as pf:
             pf.write(p.decode())
             pf.close()
-        #chiffrage
+        # chiffrage
         public_key = self.key.publickey()
         encryptor = PKCS1_OAEP.new(public_key)
-        encrypted = encryptor.encrypt(bytes(str,"utf8"))
-        #we now encode it to base64
+        encrypted = encryptor.encrypt(bytes(str, "utf8"))
+        # we now encode it to base64
         base64_encrypted = base64.b64encode(encrypted).decode('ascii')
         logger.info(f"\nEncrypted value: {base64_encrypted}")
-        with open('encrypted.txt','w') as kf:
-	        kf.write(base64_encrypted)
-	        kf.close()
+        with open('encrypted.txt', 'w') as kf:
+            kf.write(base64_encrypted)
+            kf.close()
         logger.info("\nencrypted value saved at encrypted.txt")
         logger.info("\nkeys saved as private.pem and public.pem")
 
-
-
-
     def decrypt(self, str):
         logger.info(f"Decryption RSA: {str}")
-        str =  base64.b64decode(str)
-                #dechiffrage
-                #importer des clés utilisé pendant le chiffrage
-        with open('private.pem','r') as fk:
+        str = base64.b64decode(str)
+        # dechiffrage
+        # importer des clés utilisé pendant le chiffrage
+        with open('private.pem', 'r') as fk:
             priv = fk.read()
             fk.close()
-        
+
         private = RSA.importKey(priv)
 
         decryptor = PKCS1_OAEP.new(private)
         decrypted = decryptor.decrypt(str)
-        x =decrypted.decode('utf-8')
+        x = decrypted.decode('utf-8')
         logger.info(f"Decrypted value: {x}")
+
+    def verify(self, str):
+        logger.info(f"Verifying RSA signature: {str}")
+        hash = int.from_bytes(hashlib.sha512(str.encode()).digest(), byteorder='big')
+        with open('public.pem', 'r') as fk:
+            pub = fk.read()
+            fk.close()
+        public = RSA.importKey(pub)
+        sig = input("\n *** please Enter Signature in hex *** : ")
+        hashFromSignature = pow( int(sig,16), public.e, public.n)
+        logger.info(f"\n Signature valid: {hash == hashFromSignature} \n")
+
+    def sign(self, str):
+        logger.info(f"RSA Signing: {str}")
+        hashed = int.from_bytes(hashlib.sha512(str.encode()).digest(), byteorder='big')
+        with open('private.pem', 'r') as fk:
+            priv = fk.read()
+            fk.close()
+
+        private = RSA.importKey(priv)
+        signature = pow(hashed, private.d, private.n)
+        logger.info(f"\n your signed value is :{hex(signature)} \n")

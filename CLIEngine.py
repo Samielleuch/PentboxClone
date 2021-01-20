@@ -59,6 +59,17 @@ def decrypt(strat, string):
     encryptionManager.setEncryptionStrategy(strat)
     return encryptionManager.decryptString(string)
 
+def sign(strat, string):
+    encryptionManager = EncryptionManager()
+    encryptionManager.setEncryptionStrategy(strat)
+    return encryptionManager.Sign(string)
+
+
+def verify(strat, string):
+    encryptionManager = EncryptionManager()
+    encryptionManager.setEncryptionStrategy(strat)
+    return encryptionManager.Verify(string)
+
 
 def main():
     keepLooping = 1
@@ -101,8 +112,12 @@ def main():
             algorithme = prompt(algorithmesAsymetrique)
             if(answer['choice'] == 'chiffre'):
                 encrypt(algorithme['choice'], answer['str'])
-            else:
+            elif(answer['choice'] == 'dechiffre'):
                 decrypt(algorithme['choice'], answer['str'])
+            elif(answer['choice'] == 'sign'):
+                sign(algorithme['choice'], answer['str'])
+            elif(answer['choice'] == 'verif'):
+                verify(algorithme['choice'], answer['str'])
 # Exit
         if(answers['option'][0] == '6'):
             logger.info('\n Exiting ... \n')

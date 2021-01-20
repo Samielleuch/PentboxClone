@@ -16,4 +16,9 @@ class EncryptionManager:
 
     def decryptString(self, arg):
         return(self._encryptionStrategy.decrypt(arg))
-      
+    
+    def Sign(self, arg):
+        return(self._encryptionStrategy.sign(arg))
+
+    def Verify(self, arg):
+        return(self._encryptionStrategy.verify(arg))

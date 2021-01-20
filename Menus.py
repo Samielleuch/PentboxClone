@@ -71,7 +71,16 @@ ChifOrDechif = [
                     {
                         'name': 'Dechiffrement',
                         'value': 'dechiffre'
-                    }
+                    },
+                    {
+                        'name': 'Signer',
+                        'value': 'sign'
+                    },
+                    {
+                        'name': 'verification de signature',
+                        'value': 'verif'
+                    },
+                    
                 ]
     },
     {
