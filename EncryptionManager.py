@@ -15,4 +15,5 @@ class EncryptionManager:
         return(self._encryptionStrategy.encrypt(arg))
 
     def decryptString(self, arg):
-        return(self._encryptionStrategy.decrypt(arg))    
+        return(self._encryptionStrategy.decrypt(arg))
+      
